@@ -5,6 +5,7 @@ const { authorization } = require("../middlewares");
 
 const router = express.Router();
 
+router.get("/", authorization, LinkController.list);
 router.post("/short", authorization, LinkController.short);
 
 module.exports = router;

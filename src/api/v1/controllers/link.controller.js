@@ -32,6 +32,37 @@ class LinkController {
     }
   }
 
+  static async list(req, res, next) {
+    try {
+      const links = await Link.findAll({
+        attributes: [
+          "shortUrl",
+          "originalUrl",
+          "clicks",
+          "createdAt",
+          "updatedAt",
+        ],
+        where: {
+          userId: req.user.id,
+        },
+      });
+
+      if (links.length > 0) {
+        res.status(200).json({
+          message: "Links retrieved successfully",
+          data: links,
+        });
+      } else {
+        throw {
+          status: 404,
+          message: "Link List Not Found",
+        };
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async short(req, res, next) {
     try {
       const { originalUrl } = req.body;
