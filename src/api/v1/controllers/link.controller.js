@@ -92,6 +92,38 @@ class LinkController {
       next(error);
     }
   }
+
+  static async delete(req, res, next) {
+    try {
+      const { shortUrl } = req.body;
+
+      const link = await Link.findOne({
+        where: {
+          shortUrl,
+        },
+      });
+
+      if (link && link.userId === req.user.id) {
+        await Link.destroy({
+          where: {
+            shortUrl,
+            userId: req.user.id,
+          },
+        });
+
+        res.status(200).json({
+          message: "Shortlink deleted successfully",
+        });
+      } else {
+        throw {
+          status: 404,
+          message: "Shortlink Not Found",
+        };
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = LinkController;
