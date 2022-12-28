@@ -1,8 +1,11 @@
 "use strict";
 const express = require("express");
 const { UserController } = require("../controllers");
-const { registerValidationRules } = require("../validations/user.validation");
-const { validation } = require("../middlewares");
+const {
+  registerValidationRules,
+  updatePasswordValidationRules,
+} = require("../validations/user.validation");
+const { validation, authorization } = require("../middlewares");
 
 const router = express.Router();
 
@@ -11,6 +14,14 @@ router.post(
   registerValidationRules(),
   validation,
   UserController.register
+);
+
+router.put(
+  "/update-password",
+  authorization,
+  updatePasswordValidationRules(),
+  validation,
+  UserController.updatePassword
 );
 
 module.exports = router;

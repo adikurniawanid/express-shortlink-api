@@ -32,6 +32,37 @@ class LinkController {
     }
   }
 
+  static async list(req, res, next) {
+    try {
+      const links = await Link.findAll({
+        attributes: [
+          "shortUrl",
+          "originalUrl",
+          "clicks",
+          "createdAt",
+          "updatedAt",
+        ],
+        where: {
+          userId: req.user.id,
+        },
+      });
+
+      if (links.length > 0) {
+        res.status(200).json({
+          message: "Links retrieved successfully",
+          data: links,
+        });
+      } else {
+        throw {
+          status: 404,
+          message: "Link List Not Found",
+        };
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async short(req, res, next) {
     try {
       const { originalUrl } = req.body;
@@ -55,6 +86,38 @@ class LinkController {
         throw {
           status: 422,
           message: "Invalid original Url",
+        };
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async delete(req, res, next) {
+    try {
+      const { shortUrl } = req.body;
+
+      const link = await Link.findOne({
+        where: {
+          shortUrl,
+        },
+      });
+
+      if (link && link.userId === req.user.id) {
+        await Link.destroy({
+          where: {
+            shortUrl,
+            userId: req.user.id,
+          },
+        });
+
+        res.status(200).json({
+          message: "Shortlink deleted successfully",
+        });
+      } else {
+        throw {
+          status: 404,
+          message: "Shortlink Not Found",
         };
       }
     } catch (error) {
