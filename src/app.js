@@ -6,7 +6,7 @@ const logger = require("morgan");
 const cors = require("cors");
 
 const { errorHandler } = require("./api/v1/middlewares");
-const { userRouter, authRouter } = require("./api/v1/routes");
+const { userRouter, authRouter, linkRouter } = require("./api/v1/routes");
 const app = express();
 
 app.use(logger("dev"));
@@ -18,6 +18,7 @@ app.use(cors());
 
 app.use("/v1/user", userRouter);
 app.use("/v1/auth", authRouter);
+app.use("/v1/link", linkRouter);
 app.use(errorHandler);
 
 module.exports = app;
