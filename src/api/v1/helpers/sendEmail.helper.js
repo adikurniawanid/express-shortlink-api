@@ -6,7 +6,7 @@ module.exports = async (from, to, subject, text, html) => {
   const transporter = nodemailer.createTransport({
     host: config.EMAIL_HOST,
     port: config.EMAIL_HOST,
-    secure: false, // true for 465, false for other ports
+    secure: config.EMAIL_PORT === 465 ? true : false, //true for 465, false for other ports
     auth: {
       user: config.EMAIL_AUTH_USER,
       pass: config.EMAIL_AUTH_PASSWORD,
