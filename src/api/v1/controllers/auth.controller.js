@@ -49,7 +49,7 @@ class AuthController {
   static async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ where: { email } });
 
       if (user) {
         const isPasswordValid = await comparePassword(password, user.password);
