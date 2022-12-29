@@ -24,6 +24,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
+      forgotPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      forgotPasswordTokenExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,
