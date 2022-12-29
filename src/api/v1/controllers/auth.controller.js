@@ -4,6 +4,13 @@ const { comparePassword, generateJWT, hashPassword } = require("../helpers");
 const sendEmailHelper = require("../helpers/sendEmail.helper");
 const { sequelize, User, UserBiodata } = require("../models");
 const otpGenerator = require("otp-generator");
+const config = require("../../../config/googleOAuth.config");
+const { OAuth2Client } = require("google-auth-library");
+
+const client = new OAuth2Client(
+  config.GOOGLE_CLIENT_ID,
+  config.GOOGLE_CLIENT_SECRET
+);
 
 class AuthController {
   static async register(req, res, next) {
@@ -220,6 +227,62 @@ Email ini otomatis dibuat pada ${new Date()}
               };
             }
           }
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async loginWithGoogle(req, res, next) {
+    try {
+      const token = await client.verifyIdToken({
+        idToken: req.body.googleIdToken,
+        audience: config.GOOGLE_CLIENT_IDs,
+      });
+
+      const payload = token.getPayload();
+
+      const user = await User.findOne({
+        where: {
+          email: payload.email,
+        },
+      });
+
+      if (user) {
+        res.status(200).json({
+          message: "Login sucessfully",
+          data: {
+            token: await generateJWT(user.publicId, user.email),
+          },
+        });
+      } else {
+        const transaction = await sequelize.transaction();
+
+        try {
+          const user = await User.create(
+            {
+              email: payload.email,
+              password: await hashPassword(payload.email),
+              publicId: crypto.randomUUID(),
+            },
+            { transaction }
+          );
+
+          await UserBiodata.create(
+            { userId: user.id, name: payload.name },
+            { transaction }
+          );
+          await transaction.commit();
+
+          const token = await generateJWT(user.publicId, user.email);
+
+          res
+            .status(201)
+            .json({ message: "User created successfully", data: { token } });
+        } catch (error) {
+          await transaction.rollback();
+          next(error);
         }
       }
     } catch (error) {

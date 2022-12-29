@@ -52,6 +52,15 @@ const loginValidationRules = () => {
   ];
 };
 
+const loginWithGoogleValidationRules = () => {
+  return [
+    body("googleIdToken")
+      .notEmpty()
+      .bail()
+      .withMessage("googleIdToken is required"),
+  ];
+};
+
 const forgotPasswordValidationRules = () => {
   return [
     body("email")
@@ -105,4 +114,5 @@ module.exports = {
   forgotPasswordValidationRules,
   verifyforgotPasswordTokenValidationRules,
   changeForgotPasswordValidationRules,
+  loginWithGoogleValidationRules,
 };
