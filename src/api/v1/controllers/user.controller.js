@@ -10,7 +10,10 @@ class UserController {
       if (verificationPassword !== newPassword) {
         throw {
           status: 422,
-          message: "New password and verification password do not match",
+          message: {
+            en: "New password and verification password do not match",
+            id: "Password baru dan verifikasi password tidak cocok",
+          },
         };
       }
 
@@ -33,11 +36,16 @@ class UserController {
           }
         );
 
-        res.status(200).json({ message: "Password updated successfully" });
+        res.status(200).json({
+          message: {
+            en: "Password updated successfully",
+            id: "Password berhasil diperbarui",
+          },
+        });
       } else {
         throw {
           status: 422,
-          message: "Invalid old password",
+          message: { en: "Invalid old password", id: "Password lama salah" },
         };
       }
     } catch (error) {
