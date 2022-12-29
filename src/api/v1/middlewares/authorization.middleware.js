@@ -8,7 +8,7 @@ module.exports = async (req, res, next) => {
     if (!req.headers.authorization) {
       throw {
         status: 401,
-        message: "Unauthorized User",
+        message: { en: "Unauthorized User", id: "Pengguna tidak diizinkan" },
       };
     } else {
       const decoded = jwt.verify(
@@ -30,7 +30,7 @@ module.exports = async (req, res, next) => {
       } else {
         throw {
           status: 401,
-          message: "Unauthorized User",
+          message: { en: "Unauthorized User", id: "Pengguna tidak diizinkan" },
         };
       }
     }

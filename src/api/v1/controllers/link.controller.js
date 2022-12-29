@@ -24,7 +24,10 @@ class LinkController {
       } else {
         throw {
           status: 404,
-          message: "Shortlink Not Found",
+          message: {
+            en: "Shortlink Not Found",
+            id: "Shortlink tidak ditemukan",
+          },
         };
       }
     } catch (error) {
@@ -49,13 +52,19 @@ class LinkController {
 
       if (links.length > 0) {
         res.status(200).json({
-          message: "Links retrieved successfully",
+          message: {
+            en: "Links retrieved successfully",
+            id: "Link berhasil diambil",
+          },
           data: links,
         });
       } else {
         throw {
           status: 404,
-          message: "Link List Not Found",
+          message: {
+            en: "Link List Not Found",
+            id: "Daftar Link tidak ditemukan",
+          },
         };
       }
     } catch (error) {
@@ -76,7 +85,10 @@ class LinkController {
         });
 
         res.status(201).json({
-          message: "Shortlink created successfully",
+          message: {
+            en: "Shortlink created successfully",
+            id: "Shortlink berhasil dibuat",
+          },
           data: {
             originalUrl: shortlink.originalUrl,
             shortUrl: shortlink.shortUrl,
@@ -85,7 +97,10 @@ class LinkController {
       } else {
         throw {
           status: 422,
-          message: "Invalid original Url",
+          message: {
+            en: "Invalid original Url",
+            id: "original Url tidak valid",
+          },
         };
       }
     } catch (error) {
@@ -112,12 +127,18 @@ class LinkController {
         });
 
         res.status(200).json({
-          message: "Shortlink deleted successfully",
+          message: {
+            en: "Shortlink deleted successfully",
+            id: "Shortlink berhasil dihapus",
+          },
         });
       } else {
         throw {
           status: 404,
-          message: "Shortlink Not Found",
+          message: {
+            en: "Shortlink Not Found",
+            id: "Shortlink tidak ditemukan",
+          },
         };
       }
     } catch (error) {

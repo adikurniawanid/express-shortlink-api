@@ -7,6 +7,7 @@ const {
   forgotPasswordValidationRules,
   verifyforgotPasswordTokenValidationRules,
   changeForgotPasswordValidationRules,
+  loginWithGoogleValidationRules,
 } = require("../validations/auth.validation");
 const { validation } = require("../middlewares");
 
@@ -19,6 +20,12 @@ router.post(
 );
 
 router.post("/login", loginValidationRules(), validation, AuthController.login);
+router.post(
+  "/login-with-google",
+  loginWithGoogleValidationRules(),
+  validation,
+  AuthController.loginWithGoogle
+);
 router.post(
   "/forgot-password",
   forgotPasswordValidationRules(),

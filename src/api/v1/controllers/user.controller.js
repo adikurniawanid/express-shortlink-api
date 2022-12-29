@@ -1,8 +1,45 @@
 "use strict";
-const { User } = require("../models");
+const { User, UserBiodata } = require("../models");
 const { hashPassword, comparePassword } = require("../helpers");
 
 class UserController {
+  static async get(req, res, next) {
+    try {
+      const user = await User.findOne({
+        include: {
+          model: UserBiodata,
+          attributes: ["name"],
+        },
+        where: {
+          id: req.user.id,
+        },
+      });
+
+      const result = {
+        publicId: user.publicId,
+        email: user.email,
+        name: user.UserBiodatum.name,
+      };
+
+      if (user) {
+        res.status(200).json({
+          message: {
+            en: "User retrieved successfully",
+            id: "User berhasil diambil",
+          },
+          data: result,
+        });
+      } else {
+        throw {
+          status: 404,
+          message: { en: "User not found", id: "User tidak ditemukan" },
+        };
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async updatePassword(req, res, next) {
     try {
       const { oldPassword, verificationPassword, newPassword } = req.body;
@@ -10,7 +47,10 @@ class UserController {
       if (verificationPassword !== newPassword) {
         throw {
           status: 422,
-          message: "New password and verification password do not match",
+          message: {
+            en: "New password and verification password do not match",
+            id: "Password baru dan verifikasi password tidak cocok",
+          },
         };
       }
 
@@ -33,11 +73,16 @@ class UserController {
           }
         );
 
-        res.status(200).json({ message: "Password updated successfully" });
+        res.status(200).json({
+          message: {
+            en: "Password updated successfully",
+            id: "Password berhasil diperbarui",
+          },
+        });
       } else {
         throw {
           status: 422,
-          message: "Invalid old password",
+          message: { en: "Invalid old password", id: "Password lama salah" },
         };
       }
     } catch (error) {

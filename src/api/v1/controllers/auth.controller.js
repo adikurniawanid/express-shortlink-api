@@ -4,6 +4,13 @@ const { comparePassword, generateJWT, hashPassword } = require("../helpers");
 const sendEmailHelper = require("../helpers/sendEmail.helper");
 const { sequelize, User, UserBiodata } = require("../models");
 const otpGenerator = require("otp-generator");
+const config = require("../../../config/googleOAuth.config");
+const { OAuth2Client } = require("google-auth-library");
+
+const client = new OAuth2Client(
+  config.GOOGLE_CLIENT_ID,
+  config.GOOGLE_CLIENT_SECRET
+);
 
 class AuthController {
   static async register(req, res, next) {
@@ -26,9 +33,13 @@ class AuthController {
 
       const token = await generateJWT(user.publicId, user.email);
 
-      res
-        .status(201)
-        .json({ message: "User created successfully", data: { token } });
+      res.status(201).json({
+        message: {
+          en: "User created successfully",
+          id: "Pengguna berhasil dibuat",
+        },
+        data: { token },
+      });
     } catch (error) {
       await transaction.rollback();
       next(error);
@@ -45,7 +56,7 @@ class AuthController {
 
         if (isPasswordValid) {
           res.status(200).json({
-            message: "Login sucessfully",
+            message: { en: "Login sucessfully", id: "Login berhasil" },
             data: {
               token: await generateJWT(user.publicId, user.email),
             },
@@ -53,13 +64,19 @@ class AuthController {
         } else {
           throw {
             status: 401,
-            message: "Invalid email or password",
+            message: {
+              en: "Invalid email or password",
+              id: "Email atau password salah",
+            },
           };
         }
       } else {
         throw {
           status: 401,
-          message: "Invalid email or password",
+          message: {
+            en: "Invalid email or password",
+            id: "Email atau password salah",
+          },
         };
       }
     } catch (error) {
@@ -75,7 +92,7 @@ class AuthController {
       if (!user) {
         throw {
           status: 404,
-          message: "User not found",
+          message: { en: "User not found", id: "Pengguna tidak ditemukan" },
         };
       }
 
@@ -111,7 +128,10 @@ Email ini otomatis dibuat pada ${new Date()}
       );
 
       res.status(200).json({
-        message: "Success send forgot password token",
+        message: {
+          en: "Success send forgot password token",
+          id: "Berhasil mengirim token lupa password",
+        },
       });
     } catch (error) {
       next(error);
@@ -130,14 +150,14 @@ Email ini otomatis dibuat pada ${new Date()}
       if (!user) {
         throw {
           status: 404,
-          message: "User not found",
+          message: { en: "User not found", id: "Pengguna tidak ditemukan" },
         };
       }
 
       if (user.forgotPasswordTokenExpiredAt < new Date()) {
         throw {
           status: 422,
-          message: "Token expired",
+          message: { en: "Token expired", id: "Token telah kadaluarsa" },
         };
       }
 
@@ -148,12 +168,12 @@ Email ini otomatis dibuat pada ${new Date()}
 
       if (isTokenValid) {
         res.status(200).json({
-          message: "Token valid",
+          message: { en: "Token valid", id: "Token valid" },
         });
       } else {
         throw {
           status: 422,
-          message: "Token invalid",
+          message: { en: "Token invalid", id: "Token tidak valid" },
         };
       }
     } catch (error) {
@@ -167,7 +187,10 @@ Email ini otomatis dibuat pada ${new Date()}
       if (newPassword !== verificationPassword) {
         throw {
           status: 422,
-          message: "New password and verification password do not match",
+          message: {
+            en: "New password and verification password do not match",
+            id: "Password baru dan verifikasi password tidak cocok",
+          },
         };
       } else {
         const user = await User.findOne({
@@ -188,7 +211,7 @@ Email ini otomatis dibuat pada ${new Date()}
           if (user.forgotPasswordTokenExpiredAt < new Date()) {
             throw {
               status: 422,
-              message: "Token expired",
+              message: { en: "Token expired", id: "Token telah kadaluarsa" },
             };
           } else {
             const isTokenValid = await comparePassword(
@@ -211,15 +234,78 @@ Email ini otomatis dibuat pada ${new Date()}
               );
 
               res.status(200).json({
-                message: "Password changed successfully",
+                message: {
+                  en: "Password changed successfully",
+                  id: "Password berhasil diubah",
+                },
               });
             } else {
               throw {
                 status: 422,
-                message: "Token invalid",
+                message: { en: "Token invalid", id: "Token tidak valid" },
               };
             }
           }
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async loginWithGoogle(req, res, next) {
+    try {
+      const token = await client.verifyIdToken({
+        idToken: req.body.googleIdToken,
+        audience: config.GOOGLE_CLIENT_IDs,
+      });
+
+      const payload = token.getPayload();
+
+      const user = await User.findOne({
+        where: {
+          email: payload.email,
+        },
+      });
+
+      if (user) {
+        res.status(200).json({
+          message: { en: "Login sucessfully", id: "Login berhasil" },
+          data: {
+            token: await generateJWT(user.publicId, user.email),
+          },
+        });
+      } else {
+        const transaction = await sequelize.transaction();
+
+        try {
+          const user = await User.create(
+            {
+              email: payload.email,
+              password: await hashPassword(payload.email),
+              publicId: crypto.randomUUID(),
+            },
+            { transaction }
+          );
+
+          await UserBiodata.create(
+            { userId: user.id, name: payload.name },
+            { transaction }
+          );
+          await transaction.commit();
+
+          const token = await generateJWT(user.publicId, user.email);
+
+          res.status(201).json({
+            message: {
+              en: "User created successfully",
+              id: "User berhasil dibuat",
+            },
+            data: { token },
+          });
+        } catch (error) {
+          await transaction.rollback();
+          next(error);
         }
       }
     } catch (error) {

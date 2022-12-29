@@ -8,6 +8,7 @@ const { validation, authorization } = require("../middlewares");
 
 const router = express.Router();
 
+router.get("/me", authorization, UserController.get);
 router.put(
   "/update-password",
   authorization,
