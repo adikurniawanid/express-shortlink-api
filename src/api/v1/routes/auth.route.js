@@ -34,14 +34,14 @@ router.post(
 );
 
 router.post(
-  "/verify-forgot-password-token",
+  "/forgot-password/verify-token",
   verifyforgotPasswordTokenValidationRules(),
   validation,
   AuthController.verifyForgotPasswordToken
 );
 
 router.post(
-  "/change-forgot-password",
+  "/forgot-password/change-password",
   changeForgotPasswordValidationRules(),
   validation,
   AuthController.changeForgotPassword
