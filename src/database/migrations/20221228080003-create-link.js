@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true,
       },
+      customUrl: {
+        type: Sequelize.STRING,
+        unique: true,
+      },
       clicks: {
         type: Sequelize.INTEGER,
         allowNull: false,

@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
+      customUrl: {
+        type: DataTypes.STRING,
+        unique: true,
+      },
       clicks: {
         type: DataTypes.NUMBER,
         allowNull: false,

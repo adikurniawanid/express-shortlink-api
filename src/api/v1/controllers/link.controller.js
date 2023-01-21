@@ -2,13 +2,16 @@
 const shortUniqueId = require("short-unique-id");
 const { Link } = require("../models");
 const { validateUrl } = require("../helpers");
-
+const { Op } = require("sequelize");
 class LinkController {
   static async redirect(req, res, next) {
     try {
       const link = await Link.findOne({
         where: {
-          shortUrl: req.params.shortUrlParam,
+          [Op.or]: [
+            { shortUrl: req.params.shortUrlParam },
+            { customUrl: req.params.shortUrlParam },
+          ],
         },
       });
 
@@ -16,7 +19,7 @@ class LinkController {
         await Link.increment("clicks", {
           by: 1,
           where: {
-            shortUrl: req.params.shortUrlParam,
+            id: link.id,
           },
         });
 
