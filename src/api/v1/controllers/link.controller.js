@@ -148,6 +148,49 @@ class LinkController {
       next(error);
     }
   }
+
+  static async update(req, res, next) {
+    try {
+      const { shortUrl, customUrl } = req.body;
+
+      const link = await Link.findOne({
+        where: {
+          shortUrl,
+          userId: req.user.id,
+        },
+      });
+
+      if (link) {
+        await Link.update(
+          {
+            customUrl,
+          },
+          {
+            where: {
+              id: link.id,
+            },
+          }
+        );
+
+        res.status(200).json({
+          message: {
+            en: "Custom URL created successfully",
+            id: "Custom URL berhasil dibuat",
+          },
+        });
+      } else {
+        throw {
+          status: 404,
+          message: {
+            en: "Shortlink Not Found",
+            id: "Shortlink tidak ditemukan",
+          },
+        };
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = LinkController;
