@@ -5,9 +5,7 @@ const { Link } = require("../models");
 const createShortLinkValidationRules = () => {
   return [
     body("customUrl")
-      .notEmpty()
-      .bail()
-      .withMessage("Custom Url is required")
+      .optional()
       .custom(async (customUrl) => {
         if (
           await Link.findOne({
