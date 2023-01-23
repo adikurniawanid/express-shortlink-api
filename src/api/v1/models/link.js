@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   Link.init(
     {
+      title: {
+        type: DataTypes.STRING,
+      },
       originalUrl: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -42,7 +42,9 @@ class LinkController {
     try {
       const links = await Link.findAll({
         attributes: [
+          "title",
           "shortUrl",
+          "customUrl",
           "originalUrl",
           "clicks",
           "createdAt",
@@ -77,12 +79,14 @@ class LinkController {
 
   static async short(req, res, next) {
     try {
-      const { originalUrl } = req.body;
+      const { title, originalUrl, customUrl } = req.body;
 
       if (validateUrl(originalUrl)) {
         const shortUrl = new shortUniqueId({ length: 6 });
         const shortlink = await Link.create({
+          title,
           originalUrl,
+          customUrl,
           shortUrl: shortUrl(),
           userId: req.user.id,
         });
@@ -151,7 +155,7 @@ class LinkController {
 
   static async update(req, res, next) {
     try {
-      const { shortUrl, customUrl } = req.body;
+      const { shortUrl, title, customUrl } = req.body;
 
       const link = await Link.findOne({
         where: {
@@ -164,6 +168,7 @@ class LinkController {
         await Link.update(
           {
             customUrl,
+            title,
           },
           {
             where: {
