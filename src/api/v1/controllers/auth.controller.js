@@ -2,6 +2,7 @@
 const crypto = require("crypto");
 const { comparePassword, generateJWT, hashPassword } = require("../helpers");
 const sendEmailHelper = require("../helpers/sendEmail.helper");
+const verifyRefreshTokenHelper = require("../helpers/verifyRefreshToken.helper");
 const { sequelize, User, UserBiodata } = require("../models");
 const otpGenerator = require("otp-generator");
 const config = require("../../../config/googleOAuth.config");
@@ -31,14 +32,14 @@ class AuthController {
       await UserBiodata.create({ userId: user.id, name }, { transaction });
       await transaction.commit();
 
-      const token = await generateJWT(user.publicId, user.email);
+      const token = await generateJWT(user.id, user.publicId, user.email);
 
       res.status(201).json({
         message: {
           en: "User created successfully",
           id: "Pengguna berhasil dibuat",
         },
-        data: { token },
+        token,
       });
     } catch (error) {
       await transaction.rollback();
@@ -49,28 +50,12 @@ class AuthController {
   static async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      const user = await User.findOne({ where: { email } });
+      const user = await User.findOne({
+        include: { model: UserBiodata, attributes: ["name"] },
+        where: { email },
+      });
 
-      if (user) {
-        const isPasswordValid = await comparePassword(password, user.password);
-
-        if (isPasswordValid) {
-          res.status(200).json({
-            message: { en: "Login sucessfully", id: "Login berhasil" },
-            data: {
-              token: await generateJWT(user.publicId, user.email),
-            },
-          });
-        } else {
-          throw {
-            status: 401,
-            message: {
-              en: "Invalid email or password",
-              id: "Email atau password salah",
-            },
-          };
-        }
-      } else {
+      if (!user) {
         throw {
           status: 401,
           message: {
@@ -79,6 +64,58 @@ class AuthController {
           },
         };
       }
+
+      const verifiedPassword = await comparePassword(password, user.password);
+
+      if (!verifiedPassword) {
+        throw {
+          status: 401,
+          message: {
+            en: "Invalid email or password",
+            id: "Email atau password salah",
+          },
+        };
+      }
+
+      res.status(200).json({
+        message: { en: "Login sucessfully", id: "Login berhasil" },
+        data: {
+          publicId: user.publicId,
+          name: user.UserBiodatum.name,
+        },
+        token: await generateJWT(user.id, user.publicId, user.email),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async refreshToken(req, res, next) {
+    try {
+      const tokenDetails = await verifyRefreshTokenHelper(
+        req.body.refreshToken
+      );
+
+      if (!tokenDetails) {
+        throw {
+          status: 400,
+          message: {
+            en: "Invalid refresh token",
+            id: "Token refresh tidak valid",
+          },
+        };
+      }
+
+      const accessToken = await generateJWT(
+        tokenDetails.id,
+        tokenDetails.publicId,
+        tokenDetails.email
+      );
+
+      res.status(200).json({
+        message: "Access token created successfully",
+        token: accessToken,
+      });
     } catch (error) {
       next(error);
     }
@@ -759,7 +796,7 @@ table, td { color: #000000; } #u_body a { color: #e67e23; text-decoration: under
         res.status(200).json({
           message: { en: "Login sucessfully", id: "Login berhasil" },
           data: {
-            token: await generateJWT(user.publicId, user.email),
+            token: await generateJWT(user.id, user.publicId, user.email),
           },
         });
       } else {
@@ -781,7 +818,7 @@ table, td { color: #000000; } #u_body a { color: #e67e23; text-decoration: under
           );
           await transaction.commit();
 
-          const token = await generateJWT(user.publicId, user.email);
+          const token = await generateJWT(user.id, user.publicId, user.email);
 
           res.status(201).json({
             message: {
