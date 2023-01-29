@@ -53,6 +53,7 @@ class LinkController {
         where: {
           userId: req.user.id,
         },
+        order: [["updatedAt", "DESC"]],
       });
 
       if (links.length > 0) {
