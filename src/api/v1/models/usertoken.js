@@ -1,24 +1,38 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class UserToken extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      UserToken.belongsTo(models.User, {
+        foreignKey: "userId",
+      });
     }
   }
-  UserToken.init({
-    userId: DataTypes.INTEGER,
-    token: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'UserToken',
-  });
+  UserToken.init(
+    {
+      userId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        unique: true,
+      },
+      refreshToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      forgotPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      forgotPasswordTokenExpiredAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: "UserToken",
+      timestamps: false,
+    }
+  );
   return UserToken;
 };

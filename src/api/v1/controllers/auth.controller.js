@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const { comparePassword, generateJWT, hashPassword } = require("../helpers");
 const sendEmailHelper = require("../helpers/sendEmail.helper");
 const verifyRefreshTokenHelper = require("../helpers/verifyRefreshToken.helper");
-const { sequelize, User, UserBiodata } = require("../models");
+const { sequelize, User, UserBiodata, UserToken } = require("../models");
 const otpGenerator = require("otp-generator");
 const config = require("../../../config/googleOAuth.config");
 const { OAuth2Client } = require("google-auth-library");
@@ -126,7 +126,7 @@ class AuthController {
     try {
       const { email } = req.body;
       const user = await User.findOne({
-        attributes: ["email"],
+        attributes: ["id", "email"],
         include: { model: UserBiodata, attributes: ["name"] },
         where: { email },
       });
@@ -144,14 +144,14 @@ class AuthController {
       });
 
       const otpHash = await hashPassword(otp);
-      await User.update(
+      await UserToken.update(
         {
           forgotPasswordToken: otpHash,
           forgotPasswordTokenExpiredAt: new Date(Date.now() + 5 * 60000),
         },
         {
           where: {
-            email,
+            userId: user.id,
           },
         }
       );
@@ -179,6 +179,10 @@ class AuthController {
     try {
       const { email, token } = req.body;
       const user = await User.findOne({
+        include: {
+          model: UserToken,
+          attributes: ["forgotPasswordToken", "forgotPasswordTokenExpiredAt"],
+        },
         where: {
           email,
         },
@@ -191,7 +195,7 @@ class AuthController {
         };
       }
 
-      if (user.forgotPasswordTokenExpiredAt < new Date()) {
+      if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
         throw {
           status: 422,
           message: { en: "Token expired", id: "Token telah kadaluarsa" },
@@ -200,19 +204,19 @@ class AuthController {
 
       const isTokenValid = await comparePassword(
         token,
-        user.forgotPasswordToken
+        user.UserToken.forgotPasswordToken
       );
 
-      if (isTokenValid) {
-        res.status(200).json({
-          message: { en: "Token valid", id: "Token valid" },
-        });
-      } else {
+      if (!isTokenValid) {
         throw {
           status: 422,
           message: { en: "Token invalid", id: "Token tidak valid" },
         };
       }
+
+      res.status(200).json({
+        message: { en: "Token valid", id: "Token valid" },
+      });
     } catch (error) {
       next(error);
     }
@@ -231,11 +235,11 @@ class AuthController {
         };
       } else {
         const user = await User.findOne({
-          attributes: [
-            "id",
-            "forgotPasswordToken",
-            "forgotPasswordTokenExpiredAt",
-          ],
+          attributes: ["id"],
+          include: {
+            model: UserToken,
+            attributes: ["forgotPasswordToken", "forgotPasswordTokenExpiredAt"],
+          },
           where: { email },
         });
 
@@ -245,7 +249,7 @@ class AuthController {
             message: "User not found",
           };
         } else {
-          if (user.forgotPasswordTokenExpiredAt < new Date()) {
+          if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
             throw {
               status: 422,
               message: { en: "Token expired", id: "Token telah kadaluarsa" },
@@ -253,19 +257,29 @@ class AuthController {
           } else {
             const isTokenValid = await comparePassword(
               token,
-              user.forgotPasswordToken
+              user.UserToken.forgotPasswordToken
             );
 
             if (isTokenValid) {
               await User.update(
                 {
                   password: await hashPassword(newPassword),
+                },
+                {
+                  where: {
+                    id: user.id,
+                  },
+                }
+              );
+
+              await UserToken.update(
+                {
                   forgotPasswordToken: null,
                   forgotPasswordTokenExpiredAt: null,
                 },
                 {
                   where: {
-                    id: user.id,
+                    userId: user.id,
                   },
                 }
               );
@@ -335,12 +349,12 @@ class AuthController {
             { transaction }
           );
 
-          const token = await generateJWT(user.id, user.publicId, user.email);
           await transaction.commit();
+          const token = await generateJWT(user.id, user.publicId, user.email);
 
           res.status(201).json({
             message: {
-              en: "User createda.dev@gmail.com successfully",
+              en: "User created successfully",
               id: "User berhasil dibuat",
             },
             data: { publicId: user.publicId, name: payload.name },

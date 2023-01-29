@@ -20,14 +20,19 @@ module.exports = async (userIdParam, publicIdParam, emailParam) => {
     });
 
     const userToken = await UserToken.findOne({
-      where: { userId: userIdParam },
+      attributes: ["refreshToken"],
+      where: { userId: payload.id },
     });
 
     if (userToken) {
-      await userToken.destroy();
+      await UserToken.update(
+        { refreshToken },
+        { where: { userId: userIdParam } }
+      );
+    } else {
+      await UserToken.create({ userId: userIdParam, refreshToken });
     }
 
-    await UserToken.create({ userId: userIdParam, token: refreshToken });
     return { accessToken, refreshToken };
   } catch (error) {
     throw error;

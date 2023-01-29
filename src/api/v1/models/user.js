@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.UserBiodata, {
         foreignKey: "userId",
       });
+
+      User.hasOne(models.UserToken, {
+        foreignKey: "userId",
+      });
     }
   }
   User.init(
@@ -23,14 +27,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-      },
-      forgotPasswordToken: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      forgotPasswordTokenExpiredAt: {
-        type: DataTypes.DATE,
-        allowNull: true,
       },
     },
     {

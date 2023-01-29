@@ -5,7 +5,7 @@ const config = require("../../../config/jwt.config");
 module.exports = async (refreshToken) => {
   try {
     const userToken = await UserToken.findOne({
-      where: { token: refreshToken },
+      where: { refreshToken },
     });
 
     if (!userToken) {

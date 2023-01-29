@@ -1,30 +1,32 @@
-'use strict';
+"use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('UserTokens', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
+    await queryInterface.createTable("UserTokens", {
       userId: {
-        type: Sequelize.INTEGER
-      },
-      token: {
-        type: Sequelize.STRING
-      },
-      createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        unique: true,
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      }
+      refreshToken: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      forgotPasswordToken: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      forgotPasswordTokenExpiredAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserTokens');
-  }
+    await queryInterface.dropTable("UserTokens");
+  },
 };

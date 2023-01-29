@@ -22,12 +22,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
-      forgotPasswordToken: {
-        type: Sequelize.STRING,
-      },
-      forgotPasswordTokenExpiredAt: {
-        type: Sequelize.DATE,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
