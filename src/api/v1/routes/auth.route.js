@@ -20,6 +20,8 @@ router.post(
 );
 
 router.post("/login", loginValidationRules(), validation, AuthController.login);
+router.post("/refresh-token", AuthController.refreshToken);
+
 router.post(
   "/login-with-google",
   loginWithGoogleValidationRules(),

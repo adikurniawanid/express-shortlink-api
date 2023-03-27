@@ -2,13 +2,16 @@
 const shortUniqueId = require("short-unique-id");
 const { Link } = require("../models");
 const { validateUrl } = require("../helpers");
-
+const { Op } = require("sequelize");
 class LinkController {
   static async redirect(req, res, next) {
     try {
       const link = await Link.findOne({
         where: {
-          shortUrl: req.params.shortUrlParam,
+          [Op.or]: [
+            { shortUrl: req.params.shortUrlParam },
+            { customUrl: req.params.shortUrlParam },
+          ],
         },
       });
 
@@ -16,7 +19,7 @@ class LinkController {
         await Link.increment("clicks", {
           by: 1,
           where: {
-            shortUrl: req.params.shortUrlParam,
+            id: link.id,
           },
         });
 
@@ -39,7 +42,9 @@ class LinkController {
     try {
       const links = await Link.findAll({
         attributes: [
+          "title",
           "shortUrl",
+          "customUrl",
           "originalUrl",
           "clicks",
           "createdAt",
@@ -48,6 +53,7 @@ class LinkController {
         where: {
           userId: req.user.id,
         },
+        order: [["updatedAt", "DESC"]],
       });
 
       if (links.length > 0) {
@@ -74,12 +80,14 @@ class LinkController {
 
   static async short(req, res, next) {
     try {
-      const { originalUrl } = req.body;
+      const { title, originalUrl, customUrl } = req.body;
 
       if (validateUrl(originalUrl)) {
         const shortUrl = new shortUniqueId({ length: 6 });
         const shortlink = await Link.create({
+          title,
           originalUrl,
+          customUrl,
           shortUrl: shortUrl(),
           userId: req.user.id,
         });
@@ -130,6 +138,50 @@ class LinkController {
           message: {
             en: "Shortlink deleted successfully",
             id: "Shortlink berhasil dihapus",
+          },
+        });
+      } else {
+        throw {
+          status: 404,
+          message: {
+            en: "Shortlink Not Found",
+            id: "Shortlink tidak ditemukan",
+          },
+        };
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async update(req, res, next) {
+    try {
+      const { shortUrl, title, customUrl } = req.body;
+
+      const link = await Link.findOne({
+        where: {
+          shortUrl,
+          userId: req.user.id,
+        },
+      });
+
+      if (link) {
+        await Link.update(
+          {
+            customUrl,
+            title,
+          },
+          {
+            where: {
+              id: link.id,
+            },
+          }
+        );
+
+        res.status(200).json({
+          message: {
+            en: "Custom URL created successfully",
+            id: "Custom URL berhasil dibuat",
           },
         });
       } else {

@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   Link.init(
     {
+      title: {
+        type: DataTypes.STRING,
+      },
       originalUrl: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -17,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       shortUrl: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
+      },
+      customUrl: {
+        type: DataTypes.STRING,
         unique: true,
       },
       clicks: {

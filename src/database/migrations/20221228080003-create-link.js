@@ -8,12 +8,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      title: {
+        type: Sequelize.STRING,
+      },
       originalUrl: {
         allowNull: false,
         type: Sequelize.STRING,
       },
       shortUrl: {
         allowNull: false,
+        type: Sequelize.STRING,
+        unique: true,
+      },
+      customUrl: {
         type: Sequelize.STRING,
         unique: true,
       },
