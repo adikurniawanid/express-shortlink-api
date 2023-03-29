@@ -315,7 +315,7 @@ class AuthController {
 
       const user = await User.findOne({
         where: {
-          email: payload.email,
+          publicId: payload.sub,
         },
         include: {
           model: UserBiodata,
@@ -323,9 +323,19 @@ class AuthController {
         },
       });
 
-      console.log("payload", payload);
-
       if (user) {
+        await UserBiodata.update(
+          {
+            name: payload.name,
+            avatarUrl: payload.picture,
+          },
+          {
+            where: {
+              userId: user.id,
+            },
+          }
+        );
+
         res.status(200).json({
           message: { en: "Login sucessfully", id: "Login berhasil" },
           data: {
@@ -349,7 +359,7 @@ class AuthController {
           );
 
           await UserBiodata.create(
-            { userId: user.id, name: payload.name },
+            { userId: user.id, name: payload.name, avatarUrl: payload.picture },
             { transaction }
           );
 
