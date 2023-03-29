@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
       User.hasOne(models.UserToken, {
         foreignKey: "userId",
       });
+
+      User.belongsTo(models.DetailLoginType, {
+        foreignKey: "id",
+      });
     }
   }
   User.init(
@@ -27,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+      },
+      loginTypeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
       },
     },
     {

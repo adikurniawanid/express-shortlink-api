@@ -20,7 +20,7 @@
     "nodemailer": "^6.8.0",
     "otp-generator": "^4.0.0",
     "pg": "^8.8.0",
-    "sequelize": "^6.28.0",
+    "sequelize": "^6.30.0",
     "short-unique-id": "^4.4.4"
   }
 }

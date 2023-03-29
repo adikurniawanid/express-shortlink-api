@@ -53,7 +53,7 @@ class AuthController {
       const { email, password } = req.body;
       const user = await User.findOne({
         include: { model: UserBiodata, attributes: ["name"] },
-        where: { email },
+        where: { email, loginTypeId: 0 },
       });
 
       if (!user) {
@@ -323,6 +323,8 @@ class AuthController {
         },
       });
 
+      console.log("payload", payload);
+
       if (user) {
         res.status(200).json({
           message: { en: "Login sucessfully", id: "Login berhasil" },
@@ -338,8 +340,10 @@ class AuthController {
           const user = await User.create(
             {
               email: payload.email,
-              password: await hashPassword(payload.email),
-              publicId: crypto.randomUUID(),
+              password: await hashPassword(payload.sub),
+              // publicId: crypto.randomUUID(),
+              publicId: payload.sub,
+              loginTypeId: 1,
             },
             { transaction }
           );
