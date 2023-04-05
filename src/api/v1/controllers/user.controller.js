@@ -21,20 +21,20 @@ class UserController {
         name: user.UserBiodatum.name,
       };
 
-      if (user) {
-        res.status(200).json({
-          message: {
-            en: "User retrieved successfully",
-            id: "User berhasil diambil",
-          },
-          data: result,
-        });
-      } else {
+      if (!user) {
         throw {
           status: 404,
           message: { en: "User not found", id: "User tidak ditemukan" },
         };
       }
+
+      res.status(200).json({
+        message: {
+          en: "User retrieved successfully",
+          id: "User berhasil diambil",
+        },
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -61,30 +61,30 @@ class UserController {
         },
       });
 
-      if (user && (await comparePassword(oldPassword, user.password))) {
-        await User.update(
-          {
-            password: await hashPassword(newPassword),
-          },
-          {
-            where: {
-              id: user.id,
-            },
-          }
-        );
-
-        res.status(200).json({
-          message: {
-            en: "Password updated successfully",
-            id: "Password berhasil diperbarui",
-          },
-        });
-      } else {
+      if (!user && !(await comparePassword(oldPassword, user.password))) {
         throw {
           status: 422,
           message: { en: "Invalid old password", id: "Password lama salah" },
         };
       }
+
+      await User.update(
+        {
+          password: await hashPassword(newPassword),
+        },
+        {
+          where: {
+            id: user.id,
+          },
+        }
+      );
+
+      res.status(200).json({
+        message: {
+          en: "Password updated successfully",
+          id: "Password berhasil diperbarui",
+        },
+      });
     } catch (error) {
       next(error);
     }

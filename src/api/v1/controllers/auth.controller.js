@@ -248,56 +248,56 @@ class AuthController {
             status: 404,
             message: "User not found",
           };
-        } else {
-          if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
-            throw {
-              status: 422,
-              message: { en: "Token expired", id: "Token telah kadaluarsa" },
-            };
-          } else {
-            const isTokenValid = await comparePassword(
-              token,
-              user.UserToken.forgotPasswordToken
-            );
-
-            if (isTokenValid) {
-              await User.update(
-                {
-                  password: await hashPassword(newPassword),
-                },
-                {
-                  where: {
-                    id: user.id,
-                  },
-                }
-              );
-
-              await UserToken.update(
-                {
-                  forgotPasswordToken: null,
-                  forgotPasswordTokenExpiredAt: null,
-                },
-                {
-                  where: {
-                    userId: user.id,
-                  },
-                }
-              );
-
-              res.status(200).json({
-                message: {
-                  en: "Password changed successfully",
-                  id: "Password berhasil diubah",
-                },
-              });
-            } else {
-              throw {
-                status: 422,
-                message: { en: "Token invalid", id: "Token tidak valid" },
-              };
-            }
-          }
         }
+
+        if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
+          throw {
+            status: 422,
+            message: { en: "Token expired", id: "Token telah kadaluarsa" },
+          };
+        }
+
+        const isTokenValid = await comparePassword(
+          token,
+          user.UserToken.forgotPasswordToken
+        );
+
+        if (!isTokenValid) {
+          throw {
+            status: 422,
+            message: { en: "Token invalid", id: "Token tidak valid" },
+          };
+        }
+
+        await User.update(
+          {
+            password: await hashPassword(newPassword),
+          },
+          {
+            where: {
+              id: user.id,
+            },
+          }
+        );
+
+        await UserToken.update(
+          {
+            forgotPasswordToken: null,
+            forgotPasswordTokenExpiredAt: null,
+          },
+          {
+            where: {
+              userId: user.id,
+            },
+          }
+        );
+
+        res.status(200).json({
+          message: {
+            en: "Password changed successfully",
+            id: "Password berhasil diubah",
+          },
+        });
       }
     } catch (error) {
       next(error);

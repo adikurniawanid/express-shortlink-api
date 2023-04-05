@@ -15,16 +15,7 @@ class LinkController {
         },
       });
 
-      if (link) {
-        await Link.increment("clicks", {
-          by: 1,
-          where: {
-            id: link.id,
-          },
-        });
-
-        return res.redirect(link.originalUrl);
-      } else {
+      if (!link) {
         throw {
           status: 404,
           message: {
@@ -33,6 +24,15 @@ class LinkController {
           },
         };
       }
+
+      await Link.increment("clicks", {
+        by: 1,
+        where: {
+          id: link.id,
+        },
+      });
+
+      res.redirect(link.originalUrl);
     } catch (error) {
       next(error);
     }
@@ -82,27 +82,7 @@ class LinkController {
     try {
       const { title, originalUrl, customUrl } = req.body;
 
-      if (validateUrl(originalUrl)) {
-        const shortUrl = new shortUniqueId({ length: 6 });
-        const shortlink = await Link.create({
-          title,
-          originalUrl,
-          customUrl,
-          shortUrl: shortUrl(),
-          userId: req.user.id,
-        });
-
-        res.status(201).json({
-          message: {
-            en: "Shortlink created successfully",
-            id: "Shortlink berhasil dibuat",
-          },
-          data: {
-            originalUrl: shortlink.originalUrl,
-            shortUrl: shortlink.shortUrl,
-          },
-        });
-      } else {
+      if (!validateUrl(originalUrl)) {
         throw {
           status: 422,
           message: {
@@ -111,6 +91,26 @@ class LinkController {
           },
         };
       }
+
+      const shortUrl = new shortUniqueId({ length: 6 });
+      const shortlink = await Link.create({
+        title,
+        originalUrl,
+        customUrl,
+        shortUrl: shortUrl(),
+        userId: req.user.id,
+      });
+
+      res.status(201).json({
+        message: {
+          en: "Shortlink created successfully",
+          id: "Shortlink berhasil dibuat",
+        },
+        data: {
+          originalUrl: shortlink.originalUrl,
+          shortUrl: shortlink.shortUrl,
+        },
+      });
     } catch (error) {
       next(error);
     }
@@ -123,24 +123,11 @@ class LinkController {
       const link = await Link.findOne({
         where: {
           shortUrl,
+          userId: req.user.id,
         },
       });
 
-      if (link && link.userId === req.user.id) {
-        await Link.destroy({
-          where: {
-            shortUrl,
-            userId: req.user.id,
-          },
-        });
-
-        res.status(200).json({
-          message: {
-            en: "Shortlink deleted successfully",
-            id: "Shortlink berhasil dihapus",
-          },
-        });
-      } else {
+      if (!link) {
         throw {
           status: 404,
           message: {
@@ -149,6 +136,20 @@ class LinkController {
           },
         };
       }
+
+      await Link.destroy({
+        where: {
+          shortUrl,
+          userId: req.user.id,
+        },
+      });
+
+      res.status(200).json({
+        message: {
+          en: "Shortlink deleted successfully",
+          id: "Shortlink berhasil dihapus",
+        },
+      });
     } catch (error) {
       next(error);
     }
@@ -165,26 +166,7 @@ class LinkController {
         },
       });
 
-      if (link) {
-        await Link.update(
-          {
-            customUrl,
-            title,
-          },
-          {
-            where: {
-              id: link.id,
-            },
-          }
-        );
-
-        res.status(200).json({
-          message: {
-            en: "Custom URL created successfully",
-            id: "Custom URL berhasil dibuat",
-          },
-        });
-      } else {
+      if (!link) {
         throw {
           status: 404,
           message: {
@@ -193,6 +175,25 @@ class LinkController {
           },
         };
       }
+
+      await Link.update(
+        {
+          customUrl,
+          title,
+        },
+        {
+          where: {
+            id: link.id,
+          },
+        }
+      );
+
+      res.status(200).json({
+        message: {
+          en: "Custom URL created successfully",
+          id: "Custom URL berhasil dibuat",
+        },
+      });
     } catch (error) {
       next(error);
     }
