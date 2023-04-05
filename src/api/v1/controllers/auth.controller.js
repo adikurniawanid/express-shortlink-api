@@ -1,17 +1,18 @@
-"use strict";
-const crypto = require("crypto");
-const { comparePassword, generateJWT, hashPassword } = require("../helpers");
-const sendEmailHelper = require("../helpers/sendEmail.helper");
-const verifyRefreshTokenHelper = require("../helpers/verifyRefreshToken.helper");
-const { sequelize, User, UserBiodata, UserToken } = require("../models");
-const otpGenerator = require("otp-generator");
-const config = require("../../../config/googleOAuth.config");
-const { OAuth2Client } = require("google-auth-library");
-const forgotPasswordMailBody = require("../../../email/forgotPassword");
+const crypto = require('crypto');
+const otpGenerator = require('otp-generator');
+const { OAuth2Client } = require('google-auth-library');
+const { comparePassword, generateJWT, hashPassword } = require('../helpers');
+const sendEmailHelper = require('../helpers/sendEmail.helper');
+const verifyRefreshTokenHelper = require('../helpers/verifyRefreshToken.helper');
+const {
+  sequelize, User, UserBiodata, UserToken,
+} = require('../models');
+const config = require('../../../config/googleOAuth.config');
+const forgotPasswordMailBody = require('../../../email/forgotPassword');
 
 const client = new OAuth2Client(
   config.GOOGLE_CLIENT_ID,
-  config.GOOGLE_CLIENT_SECRET
+  config.GOOGLE_CLIENT_SECRET,
 );
 
 class AuthController {
@@ -27,7 +28,7 @@ class AuthController {
           password: await hashPassword(password),
           publicId: crypto.randomUUID(),
         },
-        { transaction }
+        { transaction },
       );
 
       await UserBiodata.create({ userId: user.id, name }, { transaction });
@@ -37,8 +38,8 @@ class AuthController {
 
       res.status(201).json({
         message: {
-          en: "User created successfully",
-          id: "Pengguna berhasil dibuat",
+          en: 'User created successfully',
+          id: 'Pengguna berhasil dibuat',
         },
         token,
       });
@@ -52,7 +53,7 @@ class AuthController {
     try {
       const { email, password } = req.body;
       const user = await User.findOne({
-        include: { model: UserBiodata, attributes: ["name"] },
+        include: { model: UserBiodata, attributes: ['name'] },
         where: { email, loginTypeId: 0 },
       });
 
@@ -60,8 +61,8 @@ class AuthController {
         throw {
           status: 401,
           message: {
-            en: "Invalid email or password",
-            id: "Email atau password salah",
+            en: 'Invalid email or password',
+            id: 'Email atau password salah',
           },
         };
       }
@@ -72,14 +73,14 @@ class AuthController {
         throw {
           status: 401,
           message: {
-            en: "Invalid email or password",
-            id: "Email atau password salah",
+            en: 'Invalid email or password',
+            id: 'Email atau password salah',
           },
         };
       }
 
       res.status(200).json({
-        message: { en: "Login sucessfully", id: "Login berhasil" },
+        message: { en: 'Login sucessfully', id: 'Login berhasil' },
         data: {
           publicId: user.publicId,
           name: user.UserBiodatum.name,
@@ -94,15 +95,15 @@ class AuthController {
   static async refreshToken(req, res, next) {
     try {
       const tokenDetails = await verifyRefreshTokenHelper(
-        req.body.refreshToken
+        req.body.refreshToken,
       );
 
       if (!tokenDetails) {
         throw {
           status: 400,
           message: {
-            en: "Invalid refresh token",
-            id: "Token refresh tidak valid",
+            en: 'Invalid refresh token',
+            id: 'Token refresh tidak valid',
           },
         };
       }
@@ -110,11 +111,11 @@ class AuthController {
       const accessToken = await generateJWT(
         tokenDetails.id,
         tokenDetails.publicId,
-        tokenDetails.email
+        tokenDetails.email,
       );
 
       res.status(200).json({
-        message: "Access token created successfully",
+        message: 'Access token created successfully',
         token: accessToken,
       });
     } catch (error) {
@@ -126,15 +127,15 @@ class AuthController {
     try {
       const { email } = req.body;
       const user = await User.findOne({
-        attributes: ["id", "email"],
-        include: { model: UserBiodata, attributes: ["name"] },
+        attributes: ['id', 'email'],
+        include: { model: UserBiodata, attributes: ['name'] },
         where: { email },
       });
 
       if (!user) {
         throw {
           status: 404,
-          message: { en: "User not found", id: "Pengguna tidak ditemukan" },
+          message: { en: 'User not found', id: 'Pengguna tidak ditemukan' },
         };
       }
 
@@ -153,21 +154,21 @@ class AuthController {
           where: {
             userId: user.id,
           },
-        }
+        },
       );
 
       await sendEmailHelper(
-        "changePassword@mail.com",
+        'changePassword@mail.com',
         req.body.email,
-        "Your Forgot Password Token",
+        'Your Forgot Password Token',
         null,
-        forgotPasswordMailBody(user.UserBiodatum.name, otp)
+        forgotPasswordMailBody(user.UserBiodatum.name, otp),
       );
 
       res.status(200).json({
         message: {
-          en: "Success send forgot password token",
-          id: "Berhasil mengirim token lupa password",
+          en: 'Success send forgot password token',
+          id: 'Berhasil mengirim token lupa password',
         },
       });
     } catch (error) {
@@ -181,7 +182,7 @@ class AuthController {
       const user = await User.findOne({
         include: {
           model: UserToken,
-          attributes: ["forgotPasswordToken", "forgotPasswordTokenExpiredAt"],
+          attributes: ['forgotPasswordToken', 'forgotPasswordTokenExpiredAt'],
         },
         where: {
           email,
@@ -191,31 +192,31 @@ class AuthController {
       if (!user) {
         throw {
           status: 404,
-          message: { en: "User not found", id: "Pengguna tidak ditemukan" },
+          message: { en: 'User not found', id: 'Pengguna tidak ditemukan' },
         };
       }
 
       if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
         throw {
           status: 422,
-          message: { en: "Token expired", id: "Token telah kadaluarsa" },
+          message: { en: 'Token expired', id: 'Token telah kadaluarsa' },
         };
       }
 
       const isTokenValid = await comparePassword(
         token,
-        user.UserToken.forgotPasswordToken
+        user.UserToken.forgotPasswordToken,
       );
 
       if (!isTokenValid) {
         throw {
           status: 422,
-          message: { en: "Token invalid", id: "Token tidak valid" },
+          message: { en: 'Token invalid', id: 'Token tidak valid' },
         };
       }
 
       res.status(200).json({
-        message: { en: "Token valid", id: "Token valid" },
+        message: { en: 'Token valid', id: 'Token valid' },
       });
     } catch (error) {
       next(error);
@@ -224,21 +225,23 @@ class AuthController {
 
   static async changeForgotPassword(req, res, next) {
     try {
-      const { email, token, newPassword, verificationPassword } = req.body;
+      const {
+        email, token, newPassword, verificationPassword,
+      } = req.body;
       if (newPassword !== verificationPassword) {
         throw {
           status: 422,
           message: {
-            en: "New password and verification password do not match",
-            id: "Password baru dan verifikasi password tidak cocok",
+            en: 'New password and verification password do not match',
+            id: 'Password baru dan verifikasi password tidak cocok',
           },
         };
       } else {
         const user = await User.findOne({
-          attributes: ["id"],
+          attributes: ['id'],
           include: {
             model: UserToken,
-            attributes: ["forgotPasswordToken", "forgotPasswordTokenExpiredAt"],
+            attributes: ['forgotPasswordToken', 'forgotPasswordTokenExpiredAt'],
           },
           where: { email },
         });
@@ -246,26 +249,26 @@ class AuthController {
         if (!user) {
           throw {
             status: 404,
-            message: "User not found",
+            message: 'User not found',
           };
         }
 
         if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
           throw {
             status: 422,
-            message: { en: "Token expired", id: "Token telah kadaluarsa" },
+            message: { en: 'Token expired', id: 'Token telah kadaluarsa' },
           };
         }
 
         const isTokenValid = await comparePassword(
           token,
-          user.UserToken.forgotPasswordToken
+          user.UserToken.forgotPasswordToken,
         );
 
         if (!isTokenValid) {
           throw {
             status: 422,
-            message: { en: "Token invalid", id: "Token tidak valid" },
+            message: { en: 'Token invalid', id: 'Token tidak valid' },
           };
         }
 
@@ -277,7 +280,7 @@ class AuthController {
             where: {
               id: user.id,
             },
-          }
+          },
         );
 
         await UserToken.update(
@@ -289,13 +292,13 @@ class AuthController {
             where: {
               userId: user.id,
             },
-          }
+          },
         );
 
         res.status(200).json({
           message: {
-            en: "Password changed successfully",
-            id: "Password berhasil diubah",
+            en: 'Password changed successfully',
+            id: 'Password berhasil diubah',
           },
         });
       }
@@ -305,13 +308,14 @@ class AuthController {
   }
 
   static async loginWithGoogle(req, res, next) {
+    const transaction = await sequelize.transaction();
     try {
-      const token = await client.verifyIdToken({
+      const verifyToken = await client.verifyIdToken({
         idToken: req.body.googleIdToken,
         audience: config.GOOGLE_CLIENT_IDs,
       });
 
-      const payload = token.getPayload();
+      const payload = verifyToken.getPayload();
 
       const user = await User.findOne({
         where: {
@@ -319,67 +323,62 @@ class AuthController {
         },
         include: {
           model: UserBiodata,
-          attributes: ["name"],
+          attributes: ['name'],
         },
       });
 
-      if (user) {
-        await UserBiodata.update(
+      if (!user) {
+        const newUser = await User.create(
           {
-            name: payload.name,
-            avatarUrl: payload.picture,
+            email: payload.email,
+            password: await hashPassword(payload.sub),
+            // publicId: crypto.randomUUID(),
+            publicId: payload.sub,
+            loginTypeId: 1,
           },
-          {
-            where: {
-              userId: user.id,
-            },
-          }
+          { transaction },
         );
 
-        res.status(200).json({
-          message: { en: "Login sucessfully", id: "Login berhasil" },
-          data: {
-            publicId: user.publicId,
-            name: user.UserBiodatum.name,
+        await UserBiodata.create(
+          { userId: newUser.id, name: payload.name, avatarUrl: payload.picture },
+          { transaction },
+        );
+
+        await transaction.commit();
+        const token = await generateJWT(newUser.id, newUser.publicId, newUser.email);
+
+        res.status(201).json({
+          message: {
+            en: 'User created successfully',
+            id: 'User berhasil dibuat',
           },
-          token: await generateJWT(user.id, user.publicId, user.email),
+          data: { publicId: newUser.publicId, name: payload.name },
+          token,
         });
-      } else {
-        const transaction = await sequelize.transaction();
-        try {
-          const user = await User.create(
-            {
-              email: payload.email,
-              password: await hashPassword(payload.sub),
-              // publicId: crypto.randomUUID(),
-              publicId: payload.sub,
-              loginTypeId: 1,
-            },
-            { transaction }
-          );
-
-          await UserBiodata.create(
-            { userId: user.id, name: payload.name, avatarUrl: payload.picture },
-            { transaction }
-          );
-
-          await transaction.commit();
-          const token = await generateJWT(user.id, user.publicId, user.email);
-
-          res.status(201).json({
-            message: {
-              en: "User created successfully",
-              id: "User berhasil dibuat",
-            },
-            data: { publicId: user.publicId, name: payload.name },
-            token,
-          });
-        } catch (error) {
-          await transaction.rollback();
-          next(error);
-        }
       }
+
+      await UserBiodata.update(
+        {
+          name: payload.name,
+          avatarUrl: payload.picture,
+        },
+        {
+          where: {
+            userId: user.id,
+          },
+        },
+      );
+
+      res.status(200).json({
+        message: { en: 'Login sucessfully', id: 'Login berhasil' },
+        data: {
+          publicId: user.publicId,
+          name: user.UserBiodatum.name,
+        },
+        token: await generateJWT(user.id, user.publicId, user.email),
+      });
     } catch (error) {
+      await transaction.rollback();
       next(error);
     }
   }
