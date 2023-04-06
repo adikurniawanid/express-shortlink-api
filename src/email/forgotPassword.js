@@ -416,7 +416,7 @@ module.exports = (name, otp) => `
                                                                       style="color: #333333; line-height: 190%; text-align: left; word-wrap: break-word;">
                                                                       <p
                                                                           style="font-size: 14px; line-height: 190%; text-align: center;">
-                                                                           </p>
+                                                                          </p>
                                                                       <p
                                                                           style="font-size: 14px; line-height: 190%; text-align: center;">
                                                                           <span
@@ -430,11 +430,11 @@ module.exports = (name, otp) => `
                                                                       </p>
                                                                       <p
                                                                           style="font-size: 14px; line-height: 190%; text-align: center;">
-                                                                           </p>
+                                                                          </p>
                                                                       <p style="font-size: 14px; line-height: 190%;">
                                                                           Email ini otomatis dibuat pada ${new Date()}
                                                                       </p>
-                                                                      <p style="font-size: 14px; line-height: 190%;"> 
+                                                                      <p style="font-size: 14px; line-height: 190%;">
                                                                       </p>
                                                                   </div>
 
@@ -541,7 +541,7 @@ module.exports = (name, otp) => `
                                                                           at <span
                                                                               style="text-decoration: underline; font-size: 14px; line-height: 26.6px;"><span
                                                                                   style="color: #f1602a; font-size: 14px; line-height: 26.6px; text-decoration: underline;"><span
-                                                                                      style="font-size: 14px; line-height: 26.6px;">support@mailus.com</span>. </span></span><br />All
+                                                                                      style="font-size: 14px; line-height: 26.6px;">support@mailus.com</span>.</span></span><br />All
                                                                           right reserved. Update email preferences or
                                                                           unsubscribe.<br />123-456-7890<br />San
                                                                           Francisco, CA. United States<br /><span

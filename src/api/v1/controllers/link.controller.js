@@ -1,8 +1,8 @@
-("use strict");
-const shortUniqueId = require("short-unique-id");
-const { Link } = require("../models");
-const { validateUrl } = require("../helpers");
-const { Op } = require("sequelize");
+const ShortUniqueId = require('short-unique-id');
+const { Op } = require('sequelize');
+const { Link } = require('../models');
+const { validateUrl } = require('../helpers');
+
 class LinkController {
   static async redirect(req, res, next) {
     try {
@@ -16,16 +16,16 @@ class LinkController {
       });
 
       if (!link) {
-        throw {
+        next({
           status: 404,
           message: {
-            en: "Shortlink Not Found",
-            id: "Shortlink tidak ditemukan",
+            en: 'Shortlink Not Found',
+            id: 'Shortlink tidak ditemukan',
           },
-        };
+        });
       }
 
-      await Link.increment("clicks", {
+      await Link.increment('clicks', {
         by: 1,
         where: {
           id: link.id,
@@ -42,36 +42,36 @@ class LinkController {
     try {
       const links = await Link.findAll({
         attributes: [
-          "title",
-          "shortUrl",
-          "customUrl",
-          "originalUrl",
-          "clicks",
-          "createdAt",
-          "updatedAt",
+          'title',
+          'shortUrl',
+          'customUrl',
+          'originalUrl',
+          'clicks',
+          'createdAt',
+          'updatedAt',
         ],
         where: {
           userId: req.user.id,
         },
-        order: [["updatedAt", "DESC"]],
+        order: [['updatedAt', 'DESC']],
       });
 
       if (links.length > 0) {
         res.status(200).json({
           message: {
-            en: "Links retrieved successfully",
-            id: "Link berhasil diambil",
+            en: 'Links retrieved successfully',
+            id: 'Link berhasil diambil',
           },
           data: links,
         });
       } else {
-        throw {
+        next({
           status: 404,
           message: {
-            en: "Link List Not Found",
-            id: "Daftar Link tidak ditemukan",
+            en: 'Link List Not Found',
+            id: 'Daftar Link tidak ditemukan',
           },
-        };
+        });
       }
     } catch (error) {
       next(error);
@@ -83,16 +83,16 @@ class LinkController {
       const { title, originalUrl, customUrl } = req.body;
 
       if (!validateUrl(originalUrl)) {
-        throw {
+        next({
           status: 422,
           message: {
-            en: "Invalid original Url",
-            id: "original Url tidak valid",
+            en: 'Invalid original Url',
+            id: 'original Url tidak valid',
           },
-        };
+        });
       }
 
-      const shortUrl = new shortUniqueId({ length: 6 });
+      const shortUrl = new ShortUniqueId({ length: 6 });
       const shortlink = await Link.create({
         title,
         originalUrl,
@@ -103,8 +103,8 @@ class LinkController {
 
       res.status(201).json({
         message: {
-          en: "Shortlink created successfully",
-          id: "Shortlink berhasil dibuat",
+          en: 'Shortlink created successfully',
+          id: 'Shortlink berhasil dibuat',
         },
         data: {
           originalUrl: shortlink.originalUrl,
@@ -128,13 +128,13 @@ class LinkController {
       });
 
       if (!link) {
-        throw {
+        next({
           status: 404,
           message: {
-            en: "Shortlink Not Found",
-            id: "Shortlink tidak ditemukan",
+            en: 'Shortlink Not Found',
+            id: 'Shortlink tidak ditemukan',
           },
-        };
+        });
       }
 
       await Link.destroy({
@@ -146,8 +146,8 @@ class LinkController {
 
       res.status(200).json({
         message: {
-          en: "Shortlink deleted successfully",
-          id: "Shortlink berhasil dihapus",
+          en: 'Shortlink deleted successfully',
+          id: 'Shortlink berhasil dihapus',
         },
       });
     } catch (error) {
@@ -167,13 +167,13 @@ class LinkController {
       });
 
       if (!link) {
-        throw {
+        next({
           status: 404,
           message: {
-            en: "Shortlink Not Found",
-            id: "Shortlink tidak ditemukan",
+            en: 'Shortlink Not Found',
+            id: 'Shortlink tidak ditemukan',
           },
-        };
+        });
       }
 
       await Link.update(
@@ -185,13 +185,13 @@ class LinkController {
           where: {
             id: link.id,
           },
-        }
+        },
       );
 
       res.status(200).json({
         message: {
-          en: "Custom URL created successfully",
-          id: "Custom URL berhasil dibuat",
+          en: 'Custom URL created successfully',
+          id: 'Custom URL berhasil dibuat',
         },
       });
     } catch (error) {

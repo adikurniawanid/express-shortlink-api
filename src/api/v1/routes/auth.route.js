@@ -1,6 +1,5 @@
-"use strict";
-const express = require("express");
-const { AuthController } = require("../controllers");
+const express = require('express');
+const { AuthController } = require('../controllers');
 const {
   registerValidationRules,
   loginValidationRules,
@@ -8,45 +7,45 @@ const {
   verifyforgotPasswordTokenValidationRules,
   changeForgotPasswordValidationRules,
   loginWithGoogleValidationRules,
-} = require("../validations/auth.validation");
-const { validation } = require("../middlewares");
+} = require('../validations/auth.validation');
+const { validation } = require('../middlewares');
 
 const router = express.Router();
 router.post(
-  "/register",
+  '/register',
   registerValidationRules(),
   validation,
-  AuthController.register
+  AuthController.register,
 );
 
-router.post("/login", loginValidationRules(), validation, AuthController.login);
-router.post("/refresh-token", AuthController.refreshToken);
+router.post('/login', loginValidationRules(), validation, AuthController.login);
+router.post('/refresh-token', AuthController.refreshToken);
 
 router.post(
-  "/login-with-google",
+  '/login-with-google',
   loginWithGoogleValidationRules(),
   validation,
-  AuthController.loginWithGoogle
+  AuthController.loginWithGoogle,
 );
 router.post(
-  "/forgot-password",
+  '/forgot-password',
   forgotPasswordValidationRules(),
   validation,
-  AuthController.sendForgotPasswordToken
+  AuthController.sendForgotPasswordToken,
 );
 
 router.post(
-  "/forgot-password/verify-token",
+  '/forgot-password/verify-token',
   verifyforgotPasswordTokenValidationRules(),
   validation,
-  AuthController.verifyForgotPasswordToken
+  AuthController.verifyForgotPasswordToken,
 );
 
 router.post(
-  "/forgot-password/change-password",
+  '/forgot-password/change-password',
   changeForgotPasswordValidationRules(),
   validation,
-  AuthController.changeForgotPassword
+  AuthController.changeForgotPassword,
 );
 
 module.exports = router;

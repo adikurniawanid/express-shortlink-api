@@ -58,25 +58,25 @@ class AuthController {
       });
 
       if (!user) {
-        throw {
+        next({
           status: 401,
           message: {
             en: 'Invalid email or password',
             id: 'Email atau password salah',
           },
-        };
+        });
       }
 
       const verifiedPassword = await comparePassword(password, user.password);
 
       if (!verifiedPassword) {
-        throw {
+        next({
           status: 401,
           message: {
             en: 'Invalid email or password',
             id: 'Email atau password salah',
           },
-        };
+        });
       }
 
       res.status(200).json({
@@ -99,13 +99,13 @@ class AuthController {
       );
 
       if (!tokenDetails) {
-        throw {
+        next({
           status: 400,
           message: {
             en: 'Invalid refresh token',
             id: 'Token refresh tidak valid',
           },
-        };
+        });
       }
 
       const accessToken = await generateJWT(
@@ -133,10 +133,10 @@ class AuthController {
       });
 
       if (!user) {
-        throw {
+        next({
           status: 404,
           message: { en: 'User not found', id: 'Pengguna tidak ditemukan' },
-        };
+        });
       }
 
       const otp = otpGenerator.generate(6, {
@@ -190,17 +190,17 @@ class AuthController {
       });
 
       if (!user) {
-        throw {
+        next({
           status: 404,
           message: { en: 'User not found', id: 'Pengguna tidak ditemukan' },
-        };
+        });
       }
 
       if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
-        throw {
+        next({
           status: 422,
           message: { en: 'Token expired', id: 'Token telah kadaluarsa' },
-        };
+        });
       }
 
       const isTokenValid = await comparePassword(
@@ -209,10 +209,10 @@ class AuthController {
       );
 
       if (!isTokenValid) {
-        throw {
+        next({
           status: 422,
           message: { en: 'Token invalid', id: 'Token tidak valid' },
-        };
+        });
       }
 
       res.status(200).json({
@@ -229,13 +229,13 @@ class AuthController {
         email, token, newPassword, verificationPassword,
       } = req.body;
       if (newPassword !== verificationPassword) {
-        throw {
+        next({
           status: 422,
           message: {
             en: 'New password and verification password do not match',
             id: 'Password baru dan verifikasi password tidak cocok',
           },
-        };
+        });
       } else {
         const user = await User.findOne({
           attributes: ['id'],
@@ -247,17 +247,17 @@ class AuthController {
         });
 
         if (!user) {
-          throw {
+          next({
             status: 404,
             message: 'User not found',
-          };
+          });
         }
 
         if (user.UserToken.forgotPasswordTokenExpiredAt < new Date()) {
-          throw {
+          next({
             status: 422,
             message: { en: 'Token expired', id: 'Token telah kadaluarsa' },
-          };
+          });
         }
 
         const isTokenValid = await comparePassword(
@@ -266,10 +266,10 @@ class AuthController {
         );
 
         if (!isTokenValid) {
-          throw {
+          next({
             status: 422,
             message: { en: 'Token invalid', id: 'Token tidak valid' },
-          };
+          });
         }
 
         await User.update(

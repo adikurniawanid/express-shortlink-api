@@ -1,7 +1,11 @@
-"use strict";
+const hashPassword = require('./hashPassword.helper');
+const generateJWT = require('./generateJWT.helper');
+const comparePassword = require('./comparePassword.helper');
+const validateUrl = require('./validateUrl.helper');
+
 module.exports = {
-  hashPassword: require("./hashPassword.helper"),
-  generateJWT: require("./generateJWT.helper"),
-  comparePassword: require("./comparePassword.helper"),
-  validateUrl: require("./validateUrl.helper"),
+  hashPassword,
+  generateJWT,
+  comparePassword,
+  validateUrl,
 };

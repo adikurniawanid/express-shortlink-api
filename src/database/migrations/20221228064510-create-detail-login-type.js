@@ -1,8 +1,7 @@
-"use strict";
-/** @type {import('sequelize-cli').Migration} */
+/* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("DetailLoginTypes", {
+    await queryInterface.createTable('DetailLoginTypes', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -14,7 +13,7 @@ module.exports = {
       },
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("DetailLoginTypes");
+  async down(queryInterface, _Sequelize) {
+    await queryInterface.dropTable('DetailLoginTypes');
   },
 };

@@ -1,5 +1,4 @@
-"use strict";
-require("dotenv").config();
+require('dotenv').config();
 
 module.exports = {
   EMAIL_HOST: process.env.EMAIL_HOST,
