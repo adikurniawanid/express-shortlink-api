@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 const otpGenerator = require('otp-generator');
 const { OAuth2Client } = require('google-auth-library');
-const { comparePassword, generateJWT, hashPassword } = require('../helpers');
-const sendEmailHelper = require('../helpers/sendEmail.helper');
-const verifyRefreshTokenHelper = require('../helpers/verifyRefreshToken.helper');
+const {
+  comparePassword, generateJWT, hashPassword, sendEmail, verifyRefreshToken,
+} = require('../helpers');
 const {
   sequelize, User, UserBiodata, UserToken,
 } = require('../models');
@@ -94,7 +94,7 @@ class AuthController {
 
   static async refreshToken(req, res, next) {
     try {
-      const tokenDetails = await verifyRefreshTokenHelper(
+      const tokenDetails = await verifyRefreshToken(
         req.body.refreshToken,
       );
 
@@ -157,7 +157,7 @@ class AuthController {
         },
       );
 
-      await sendEmailHelper(
+      await sendEmail(
         'changePassword@mail.com',
         req.body.email,
         'Your Forgot Password Token',

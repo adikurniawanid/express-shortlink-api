@@ -1,14 +1,14 @@
 const express = require('express');
 const { LinkController } = require('../controllers');
-const { authorization } = require('../middlewares');
+const { authorization, validation } = require('../middlewares');
 const {
   updateCustomURLValidationRules,
   createShortLinkValidationRules,
 } = require('../validations/link.validation');
-const { validation } = require('../middlewares');
 
 const router = express.Router();
 
+router.get('/:shortUrl', authorization, LinkController.get);
 router.get('/', authorization, LinkController.list);
 router.post(
   '/short',
@@ -17,7 +17,7 @@ router.post(
   validation,
   LinkController.short,
 );
-router.delete('/', authorization, LinkController.delete);
+router.delete('/:shortUrl', authorization, LinkController.delete);
 router.put(
   '/',
   authorization,

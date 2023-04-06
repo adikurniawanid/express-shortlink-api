@@ -38,9 +38,9 @@ class LinkController {
     }
   }
 
-  static async list(req, res, next) {
+  static async get(req, res, next) {
     try {
-      const links = await Link.findAll({
+      const link = await Link.findOne({
         attributes: [
           'title',
           'shortUrl',
@@ -49,6 +49,43 @@ class LinkController {
           'clicks',
           'createdAt',
           'updatedAt',
+        ],
+        where: {
+          userId: req.user.id,
+          shortUrl: req.params.shortUrl,
+        },
+      });
+
+      if (!link) {
+        next({
+          status: 404,
+          message: {
+            en: 'Link Not Found',
+            id: 'Link tidak ditemukan',
+          },
+        });
+      }
+
+      res.status(200).json({
+        message: {
+          en: 'Link retrieved successfully',
+          id: 'Link berhasil diambil',
+        },
+        data: link,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async list(req, res, next) {
+    try {
+      const links = await Link.findAll({
+        attributes: [
+          'title',
+          'shortUrl',
+          'customUrl',
+          'originalUrl',
         ],
         where: {
           userId: req.user.id,
@@ -118,11 +155,9 @@ class LinkController {
 
   static async delete(req, res, next) {
     try {
-      const { shortUrl } = req.body;
-
       const link = await Link.findOne({
         where: {
-          shortUrl,
+          shortUrl: req.params.shortUrl,
           userId: req.user.id,
         },
       });
@@ -139,7 +174,7 @@ class LinkController {
 
       await Link.destroy({
         where: {
-          shortUrl,
+          shortUrl: req.params.shortUrl,
           userId: req.user.id,
         },
       });
