@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/:shortUrl', authorization, LinkController.get);
 router.get('/', authorization, LinkController.list);
 router.post(
-  '/short',
+  '/',
   authorization,
   createShortLinkValidationRules(),
   validation,
