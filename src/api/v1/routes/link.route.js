@@ -18,6 +18,7 @@ router.post(
   LinkController.short,
 );
 router.delete('/:shortUrl', authorization, LinkController.delete);
+router.patch('/:shortUrl', authorization, LinkController.favorite);
 router.put(
   '/',
   authorization,
