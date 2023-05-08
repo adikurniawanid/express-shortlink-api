@@ -1,7 +1,7 @@
 const ShortUniqueId = require('short-unique-id');
 const { Op } = require('sequelize');
 const { Link } = require('../models');
-const { validateUrl } = require('../helpers');
+// const { validateUrl } = require('../helpers');
 
 class LinkController {
   static async redirect(req, res, next) {
@@ -86,6 +86,9 @@ class LinkController {
           'shortUrl',
           'customUrl',
           'originalUrl',
+          'createdAt',
+          'updatedAt',
+          'clicks',
         ],
         where: {
           userId: req.user.id,
@@ -119,15 +122,16 @@ class LinkController {
     try {
       const { title, originalUrl, customUrl } = req.body;
 
-      if (!validateUrl(originalUrl)) {
-        next({
-          status: 422,
-          message: {
-            en: 'Invalid original Url',
-            id: 'original Url tidak valid',
-          },
-        });
-      }
+      // turn off validate originalUrl
+      // if (!validateUrl(originalUrl)) {
+      //   next({
+      //     status: 422,
+      //     message: {
+      //       en: 'Invalid original Url',
+      //       id: 'original Url tidak valid',
+      //     },
+      //   });
+      // }
 
       const shortUrl = new ShortUniqueId({ length: 6 });
       const shortlink = await Link.create({
