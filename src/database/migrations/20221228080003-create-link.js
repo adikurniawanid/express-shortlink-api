@@ -29,6 +29,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 0,
       },
+      isFavorite: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,

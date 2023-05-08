@@ -86,14 +86,15 @@ class LinkController {
           'shortUrl',
           'customUrl',
           'originalUrl',
+          'isFavorite',
+          'clicks',
           'createdAt',
           'updatedAt',
-          'clicks',
         ],
         where: {
           userId: req.user.id,
         },
-        order: [['updatedAt', 'DESC']],
+        order: [['isFavorite', 'DESC'], ['updatedAt', 'DESC']],
       });
 
       if (links.length > 0) {
@@ -233,6 +234,56 @@ class LinkController {
           id: 'Custom URL berhasil dibuat',
         },
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async favorite(req, res, next) {
+    try {
+      const link = await Link.findOne({
+        where: {
+          shortUrl: req.params.shortUrl,
+          userId: req.user.id,
+        },
+      });
+
+      if (!link) {
+        next({
+          status: 404,
+          message: {
+            en: 'Shortlink Not Found',
+            id: 'Shortlink tidak ditemukan',
+          },
+        });
+      }
+
+      await Link.update(
+        {
+          isFavorite: !link.isFavorite,
+        },
+        {
+          where: {
+            id: link.id,
+          },
+        },
+      );
+
+      res.status(200).json(
+        !link.isFavorite
+          ? {
+            message: {
+              en: 'Success Favorite Shortlink',
+              id: 'Berhasil Favorit Shortlink',
+            },
+          }
+          : {
+            message: {
+              en: 'Success Unfavorite Shortlink',
+              id: 'Berhasil Batal Favorit Shortlink',
+            },
+          },
+      );
     } catch (error) {
       next(error);
     }
