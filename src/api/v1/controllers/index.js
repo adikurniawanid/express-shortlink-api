@@ -1,6 +1,9 @@
-"use strict";
+const UserController = require('./user.controller');
+const AuthController = require('./auth.controller');
+const LinkController = require('./link.controller');
+
 module.exports = {
-  UserController: require("./user.controller"),
-  AuthController: require("./auth.controller"),
-  LinkController: require("./link.controller"),
+  UserController,
+  AuthController,
+  LinkController,
 };

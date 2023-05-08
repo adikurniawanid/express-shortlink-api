@@ -1,14 +1,14 @@
-"use strict";
+/* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("UserBiodatas", {
+    await queryInterface.createTable('UserBiodatas', {
       userId: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.INTEGER,
         references: {
-          model: "Users",
-          key: "id",
+          model: 'Users',
+          key: 'id',
         },
         unique: true,
       },
@@ -30,7 +30,7 @@ module.exports = {
       },
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("UserBiodatas");
+  async down(queryInterface, _Sequelize) {
+    await queryInterface.dropTable('UserBiodatas');
   },
 };

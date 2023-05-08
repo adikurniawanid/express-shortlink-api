@@ -1,6 +1,5 @@
-"use strict";
-const { User, UserBiodata } = require("../models");
-const { hashPassword, comparePassword } = require("../helpers");
+const { User, UserBiodata } = require('../models');
+const { hashPassword, comparePassword } = require('../helpers');
 
 class UserController {
   static async get(req, res, next) {
@@ -8,7 +7,7 @@ class UserController {
       const user = await User.findOne({
         include: {
           model: UserBiodata,
-          attributes: ["name"],
+          attributes: ['name'],
         },
         where: {
           id: req.user.id,
@@ -21,20 +20,20 @@ class UserController {
         name: user.UserBiodatum.name,
       };
 
-      if (user) {
-        res.status(200).json({
-          message: {
-            en: "User retrieved successfully",
-            id: "User berhasil diambil",
-          },
-          data: result,
-        });
-      } else {
-        throw {
+      if (!user) {
+        next({
           status: 404,
-          message: { en: "User not found", id: "User tidak ditemukan" },
-        };
+          message: { en: 'User not found', id: 'User tidak ditemukan' },
+        });
       }
+
+      res.status(200).json({
+        message: {
+          en: 'User retrieved successfully',
+          id: 'User berhasil diambil',
+        },
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -45,46 +44,46 @@ class UserController {
       const { oldPassword, verificationPassword, newPassword } = req.body;
 
       if (verificationPassword !== newPassword) {
-        throw {
+        next({
           status: 422,
           message: {
-            en: "New password and verification password do not match",
-            id: "Password baru dan verifikasi password tidak cocok",
+            en: 'New password and verification password do not match',
+            id: 'Password baru dan verifikasi password tidak cocok',
           },
-        };
+        });
       }
 
       const user = await User.findOne({
-        attributes: ["id", "password"],
+        attributes: ['id', 'password'],
         where: {
           id: req.user.id,
         },
       });
 
-      if (user && (await comparePassword(oldPassword, user.password))) {
-        await User.update(
-          {
-            password: await hashPassword(newPassword),
-          },
-          {
-            where: {
-              id: user.id,
-            },
-          }
-        );
-
-        res.status(200).json({
-          message: {
-            en: "Password updated successfully",
-            id: "Password berhasil diperbarui",
-          },
-        });
-      } else {
-        throw {
+      if (!user && !(await comparePassword(oldPassword, user.password))) {
+        next({
           status: 422,
-          message: { en: "Invalid old password", id: "Password lama salah" },
-        };
+          message: { en: 'Invalid old password', id: 'Password lama salah' },
+        });
       }
+
+      await User.update(
+        {
+          password: await hashPassword(newPassword),
+        },
+        {
+          where: {
+            id: user.id,
+          },
+        },
+      );
+
+      res.status(200).json({
+        message: {
+          en: 'Password updated successfully',
+          id: 'Password berhasil diperbarui',
+        },
+      });
     } catch (error) {
       next(error);
     }

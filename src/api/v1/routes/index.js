@@ -1,7 +1,11 @@
-"use strict";
+const userRouter = require('./user.route');
+const authRouter = require('./auth.route');
+const linkRouter = require('./link.route');
+const redirectRouter = require('./redirect.route');
+
 module.exports = {
-  userRouter: require("./user.route"),
-  authRouter: require("./auth.route"),
-  linkRouter: require("./link.route"),
-  redirectRouter: require("./redirect.route"),
+  userRouter,
+  authRouter,
+  linkRouter,
+  redirectRouter,
 };

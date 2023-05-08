@@ -367,8 +367,9 @@ module.exports = (name, otp) => `
 
                                                                   <h1
                                                                       style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-weight: normal; font-family: 'Open Sans',sans-serif; font-size: 28px;">
-                                                                      <strong><br />Hi ${name}, Sepertinya kamu lupa
-                                                                          password<br /><br /></strong></h1>
+                                                                      <strong><br />Hi ${name}.
+                                                                      <br />Sepertinya kamu lupa
+                                                                          password<br /></strong></h1>
 
                                                               </td>
                                                           </tr>
@@ -416,7 +417,7 @@ module.exports = (name, otp) => `
                                                                       style="color: #333333; line-height: 190%; text-align: left; word-wrap: break-word;">
                                                                       <p
                                                                           style="font-size: 14px; line-height: 190%; text-align: center;">
-                                                                           </p>
+                                                                          </p>
                                                                       <p
                                                                           style="font-size: 14px; line-height: 190%; text-align: center;">
                                                                           <span
@@ -430,11 +431,15 @@ module.exports = (name, otp) => `
                                                                       </p>
                                                                       <p
                                                                           style="font-size: 14px; line-height: 190%; text-align: center;">
-                                                                           </p>
-                                                                      <p style="font-size: 14px; line-height: 190%;">
-                                                                          Email ini otomatis dibuat pada ${new Date()}
+                                                                          </p>
+                                                                          <br />
+                                                                      <p style="font-size: 14px; line-height: 190%; text-align: center" >
+                                                                          Email ini dibuat otomatis pada ${new Date().toLocaleTimeString('id-ID', {
+    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  })}
                                                                       </p>
-                                                                      <p style="font-size: 14px; line-height: 190%;"> 
+                                                                          <br />
+                                                                      <p style="font-size: 14px; line-height: 190%;">
                                                                       </p>
                                                                   </div>
 
@@ -485,14 +490,6 @@ module.exports = (name, otp) => `
                                                                       <tr>
                                                                           <td style="padding-right: 0px;padding-left: 0px;"
                                                                               align="center">
-
-                                                                              <img align="center" border="0"
-                                                                                  src="https://cdn.templates.unlayer.com/assets/1636435417479-ggg.jpg"
-                                                                                  alt="border" title="border"
-                                                                                  style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 600px;"
-                                                                                  width="600"
-                                                                                  class="v-src-width v-src-max-width" />
-
                                                                           </td>
                                                                       </tr>
                                                                   </table>
@@ -541,7 +538,7 @@ module.exports = (name, otp) => `
                                                                           at <span
                                                                               style="text-decoration: underline; font-size: 14px; line-height: 26.6px;"><span
                                                                                   style="color: #f1602a; font-size: 14px; line-height: 26.6px; text-decoration: underline;"><span
-                                                                                      style="font-size: 14px; line-height: 26.6px;">support@mailus.com</span>. </span></span><br />All
+                                                                                      style="font-size: 14px; line-height: 26.6px;">support@mailus.com</span>.</span></span><br />All
                                                                           right reserved. Update email preferences or
                                                                           unsubscribe.<br />123-456-7890<br />San
                                                                           Francisco, CA. United States<br /><span

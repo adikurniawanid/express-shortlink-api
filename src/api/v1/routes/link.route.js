@@ -1,29 +1,29 @@
-"use strict";
-const express = require("express");
-const { LinkController } = require("../controllers");
-const { authorization } = require("../middlewares");
+const express = require('express');
+const { LinkController } = require('../controllers');
+const { authorization, validation } = require('../middlewares');
 const {
   updateCustomURLValidationRules,
   createShortLinkValidationRules,
-} = require("../validations/link.validation");
-const { validation } = require("../middlewares");
+} = require('../validations/link.validation');
+
 const router = express.Router();
 
-router.get("/", authorization, LinkController.list);
+router.get('/:shortUrl', authorization, LinkController.get);
+router.get('/', authorization, LinkController.list);
 router.post(
-  "/short",
+  '/',
   authorization,
   createShortLinkValidationRules(),
   validation,
-  LinkController.short
+  LinkController.short,
 );
-router.delete("/", authorization, LinkController.delete);
+router.delete('/:shortUrl', authorization, LinkController.delete);
 router.put(
-  "/",
+  '/',
   authorization,
   updateCustomURLValidationRules(),
   validation,
-  LinkController.update
+  LinkController.update,
 );
 
 module.exports = router;

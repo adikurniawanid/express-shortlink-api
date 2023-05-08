@@ -1,5 +1,4 @@
-"use strict";
-require("dotenv").config();
+require('dotenv').config();
 
 module.exports = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,

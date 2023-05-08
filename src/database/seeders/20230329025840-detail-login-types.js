@@ -1,24 +1,23 @@
-"use strict";
-
+/* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up(queryInterface, _Sequelize) {
     await queryInterface.bulkInsert(
-      "DetailLoginTypes",
+      'DetailLoginTypes',
       [
         {
-          id: "0",
-          description: "app",
+          id: '0',
+          description: 'app',
         },
         {
-          id: "1",
-          description: "Google",
+          id: '1',
+          description: 'Google',
         },
       ],
-      {}
+      {},
     );
   },
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("DetailLoginTypes", null, {});
+  async down(queryInterface, _Sequelize) {
+    await queryInterface.bulkDelete('DetailLoginTypes', null, {});
   },
 };
