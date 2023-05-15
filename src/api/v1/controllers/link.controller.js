@@ -230,8 +230,8 @@ class LinkController {
 
       res.status(200).json({
         message: {
-          en: 'Custom URL created successfully',
-          id: 'Custom URL berhasil dibuat',
+          en: 'Custom URL updated successfully',
+          id: 'Custom URL berhasil diupdate',
         },
       });
     } catch (error) {
