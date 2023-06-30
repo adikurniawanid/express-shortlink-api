@@ -115,7 +115,10 @@ class AuthController {
       );
 
       res.status(200).json({
-        message: 'Access token created successfully',
+        message: {
+          en: 'Access token created successfully',
+          id: 'Akses Token berhasil dibuat',
+        },
         token: accessToken,
       });
     } catch (error) {
