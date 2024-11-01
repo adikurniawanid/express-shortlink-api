@@ -25,7 +25,7 @@
     "nodemailer": "^6.9.15",
     "otp-generator": "^4.0.1",
     "pg": "^8.13.0",
-    "sequelize": "^6.37.3",
+    "sequelize": "^6.37.4",
     "short-unique-id": "^4.4.4"
   },
   "devDependencies": {
