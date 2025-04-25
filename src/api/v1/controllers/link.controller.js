@@ -16,7 +16,7 @@ class LinkController {
       });
 
       if (!link) {
-        next({
+        return next({
           status: 404,
           message: {
             en: 'Shortlink Not Found',
